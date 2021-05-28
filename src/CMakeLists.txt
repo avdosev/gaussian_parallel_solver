@@ -8,3 +8,7 @@ find_package(OpenMP REQUIRED)
 add_executable (gaus "gaus.h" "main.cpp")
 
 target_link_libraries(gaus PRIVATE OpenMP::OpenMP_CXX)
+
+add_executable(mpi_gaus "mpi.cpp")
+find_package(MPI REQUIRED)
+target_link_libraries(mpi_gaus PUBLIC MPI::MPI_CXX)
