@@ -3,6 +3,8 @@
 #include <time.h>
 #include <math.h>
 #include <mpi.h>
+#include <iostream>
+#include <random>
 
 
 int ProcNum;            // Number of the available processes
@@ -43,7 +45,7 @@ void ProcessInitialization (double* &pMatrix, double* &pVector,
     {
         do {
             printf("\nEnter the size of the matrix and the vector: ");
-            scanf("%d", &Size);
+            std::cin >> Size;
             if (Size < ProcNum) {
                 printf("Size must be greater than number of processes! \n");
             }
@@ -146,24 +148,21 @@ void PrintMatrix (double* pMatrix, int RowCount, int ColCount) {
 
 // Function for formatted vector output
 void PrintVector (double* pVector, int Size) {
-    int i;
-    for (i=0; i<Size; i++)
+    for (int i=0; i<Size; i++)
         printf("%7.4f ", pVector[i]);
 }
 
 // Function for formatted result vector output
 void PrintResultVector (double* pResult, int Size) {
-    int i;
-    for (i=0; i<Size; i++)
+    for (int i=0; i<Size; i++)
         printf("%7.4f ", pResult[pParallelPivotPos[i]]);
 }
 
 // Fuction for the column elimination
 void ParallelEliminateColumns(double* pProcRows, double* pProcVector, double* pPivotRow, int Size, int RowNum, int Iter) {
-    double multiplier;
     for (int i=0; i<RowNum; i++) {
         if (pProcPivotIter[i] == -1) {
-            multiplier = pProcRows[i*Size+Iter] / pPivotRow[Iter];
+            double multiplier = pProcRows[i*Size+Iter] / pPivotRow[Iter];
             for (int j=Iter; j<Size; j++) {
                 pProcRows[i*Size + j] -= pPivotRow[j]*multiplier;
             }
@@ -344,7 +343,7 @@ void TestResult(double* pMatrix, double* pVector, double* pResult, int Size) {
 
 
 
-void main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     double* pMatrix;        // Matrix of the linear system
     double* pVector;        // Right parts of the linear system
     double* pResult;        // Result vector

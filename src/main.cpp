@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <chrono>
 #include "gaus.h"
 
 void print(std::ostream &s, const Matrix2D<double>& matrix) {
@@ -56,16 +57,36 @@ bool equal(std::vector<double>& arr1, std::vector<double>& arr2, double eps = 0.
     return true;
 }
 
+template <typename Func>
+std::chrono::duration<double> check_time(Func&& f) {
+    auto start = std::chrono::steady_clock::now();    
+    f();
+    auto stop = std::chrono::steady_clock::now();
+    return (stop - start);
+}
+
 void example() {
-    auto [task, solve] = generate_matrix(3);
+    auto [task, solve] = generate_matrix(4);
     print(std::cout, solve);
     print(std::cout, task);
-    auto result = gauss_solve_omp(task);
+    auto result = gauss_solve(task);
     print(std::cout, result);
     std::cout << "equal: " << equal(solve, result.data) << std::endl;
 }
 
+void interactive() {
+    size_t N = 0;
+    std::cout << "type matrix size: ";
+    std::cin >> N;
+    auto [task, solve] = generate_matrix(N);
+    auto serial_time = check_time([task=task] { gauss_solve(task); }).count();
+    auto omp_time = check_time([task=task] { gauss_solve_omp(task); }).count();
+    std::cout << "Serial version: " << serial_time << std::endl;
+    std::cout << "Omp version: " << omp_time << std::endl;
+}
+
 int main() {
-    example();
+//    example();
+    interactive();
     return 0;
 }
